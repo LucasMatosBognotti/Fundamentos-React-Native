@@ -1,7 +1,8 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import FeatherIcon from 'react-native-vector-icons/Feather';
-
 import { View } from 'react-native';
+
+import FloatingCart from '../../components/FloatingCart';
 
 import {
   Container,
@@ -18,9 +19,6 @@ import {
   ProductQuantity,
   ActionContainer,
   ActionButton,
-  TotalProductsContainer,
-  TotalProductsText,
-  SubtotalValue,
 } from './styles';
 
 import { useCart } from '../../hooks/cart';
@@ -36,27 +34,20 @@ interface Product {
 }
 
 const Cart: React.FC = () => {
-  const { increment, decrement, products } = useCart();
+  const { increment, deleted, decrement, products } = useCart();
+
+  function handleDelete(id: string): void {
+    deleted(id);
+    products.filter(product => product.id !== id);
+  }
 
   function handleIncrement(id: string): void {
-    // TODO
+    increment(id);
   }
 
   function handleDecrement(id: string): void {
-    // TODO
+    decrement(id);
   }
-
-  const cartTotal = useMemo(() => {
-    // TODO RETURN THE SUM OF THE QUANTITY OF THE PRODUCTS IN THE CART
-
-    return formatValue(0);
-  }, [products]);
-
-  const totalItensInCart = useMemo(() => {
-    // TODO RETURN THE SUM OF THE QUANTITY OF THE PRODUCTS IN THE CART
-
-    return 0;
-  }, [products]);
 
   return (
     <Container>
@@ -68,7 +59,7 @@ const Cart: React.FC = () => {
           ListFooterComponentStyle={{
             height: 80,
           }}
-          renderItem={({ item }: { item: Product }) => (
+          renderItem={({ item }) => (
             <Product>
               <ProductImage source={{ uri: item.image_url }} />
               <ProductTitleContainer>
@@ -88,6 +79,9 @@ const Cart: React.FC = () => {
                 </ProductPriceContainer>
               </ProductTitleContainer>
               <ActionContainer>
+                <ActionButton onPress={() => handleDelete(item.id)}>
+                  <FeatherIcon name="x" color="#000" size={16} />
+                </ActionButton>
                 <ActionButton
                   testID={`increment-${item.id}`}
                   onPress={() => handleIncrement(item.id)}
@@ -105,11 +99,7 @@ const Cart: React.FC = () => {
           )}
         />
       </ProductContainer>
-      <TotalProductsContainer>
-        <FeatherIcon name="shopping-cart" color="#fff" size={24} />
-        <TotalProductsText>{`${totalItensInCart} itens`}</TotalProductsText>
-        <SubtotalValue>{cartTotal}</SubtotalValue>
-      </TotalProductsContainer>
+      <FloatingCart />
     </Container>
   );
 };
